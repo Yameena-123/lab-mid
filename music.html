@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Face Mood Music App</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+  <style>
+    body {
+      text-align: center;
+      background: #111;
+      color: white;
+      font-family: Arial;
+    }
+
+    video {
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+
+    h2 {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎭 Face Mood Music App</h1>
+
+<video id="video" width="350" height="250" autoplay muted playsinline></video>
+
+<h2 id="mood">Detecting Mood...</h2>
+
+<audio controls>
+  <source src="happy1.mp3" type="audio/mpeg">
+  <source src="happy2.mp3" type="audio/mpeg">
+  <source src="happy3.mp3" type="audio/mpeg">
+  <source src="happy4.mp3" type="audio/mpeg">
+  <source src="happy5.mp3" type="audio/mpeg">
+  <source src="happy6.mp3" type="audio/mpeg">
+  <source src="sad1.mp3" type="audio/mpeg">
+  <source src="sad2.mp3" type="audio/mpeg">
+  <source src="sad3.mp3" type="audio/mpeg">
+  <source src="sad4.mp3" type="audio/mpeg">
+  <source src="sad5.mp3" type="audio/mpeg">
+  <source src="sad6.mp3" type="audio/mpeg">
+  <source src="normal1.mp3" type="audio/mpeg">
+  <source src="normal2.mp3" type="audio/mpeg">
+  <source src="normal3.mp3" type="audio/mpeg">
+  <source src="normal4.mp3" type="audio/mpeg">
+  <source src="normal5.mp3" type="audio/mpeg">
+  <source src="normal6.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const video = document.getElementById('video');
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    video.srcObject = stream;
+  });
+
+// Load models
+Promise.all([
+  faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/models'),
+  faceapi.nets.faceExpressionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/models')
+]).then(startDetection);
+
+function startDetection() {
+  setInterval(async () => {
+    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+
+    if (detections.length > 0) {
+      const mood = Object.keys(detections[0].expressions)
+        .reduce((a, b) => detections[0].expressions[a] > detections[0].expressions[b] ? a : b);
+
+      document.getElementById("mood").innerText = "Mood: " + mood;
+
+      playMusic(mood);
+    }
+  }, 3000);
+}
+
+function playMusic(mood) {
+  const music = document.getElementById("music");
+
+  if (mood === "happy") {
+    music.src = "happy.mp3";
+  } else if (mood === "sad") {
+    music.src = "sad.mp3";
+  } else {
+    music.src = "normal.mp3";
+  }
+
+  music.play();
+}
+</script>
+
+</body>
+</html>

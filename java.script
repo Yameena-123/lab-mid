@@ -1,0 +1,30 @@
+document.getElementById("submitBtn").addEventListener("click", function() {
+    // Optional: get input values
+    const name = document.querySelector("#nameField input").value;
+    const email = document.querySelector("input[type='email']").value;
+    const password = document.querySelector("input[type='password']").value;
+
+    // Simple check
+    if (isSignup) {
+        if(!name || !email || !password){
+            alert("Please fill all fields for signup");
+            return;
+        }
+    } else {
+        if(!email || !password){
+            alert("Please fill all fields for login");
+            return;
+        }
+    }
+
+    // ✅ Redirect to music page
+    window.location.href = "music.html";
+    Promise.all([
+  faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/models'),
+  faceapi.nets.faceExpressionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/models')
+]).then(startDetection);
+const detections = await faceapi
+  .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 }))
+  .withFaceExpressions();
+  console.log(detections);
+});
